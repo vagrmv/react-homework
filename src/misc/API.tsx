@@ -18,23 +18,25 @@ async function loadData(url: string): Promise<any> {
             break;
         }
     } 
-    return [];
+    return null;
 }
 
 async function getRawDataPerPage(urlPart: string) {
     const itemPerPage: number = 100;
     let currentPage: number = 1;
-    const resultArray = []
+    const resultArray: any = [];
     while (true) {
-        const url: string = `${urlPart}?per_page=${itemPerPage}&${currentPage}`;
+        const url: string = `${urlPart}?per_page=${itemPerPage}&page=${currentPage}`;
         const result = await loadData(url);
-        resultArray.push([...result]);
+        if (!result) {
+            break
+        }
+        resultArray.push(...result);
         currentPage++;
         if (result.length < itemPerPage) {
             break;
         }
     }
-    console.log(resultArray);
     return resultArray;
 }
 
