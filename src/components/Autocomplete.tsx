@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useAutocomplete, useToggle } from "../misc/Hooks"
 import AutocompleteItem from "./AutocompleteItem";
 

@@ -7,7 +7,6 @@ export default function AutocompleteItem({ value, onClick }: IAutocompleteItemPr
     return (
         <a
             href={value}
-            // key={key}
             className="autocomplete__item"
             onClick={(e) => {
                 e.preventDefault();
