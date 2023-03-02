@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { getRawUserRepos } from "../misc/API";
-import getAppSettings, { IAppSettings, SETTINGS_KEY } from "../misc/Config";
+import { RootState, settingsActionCreator } from "../store/store";
 import Autocomplete from "./Autocomplete";
 
 export default function Settings() {
@@ -15,39 +16,27 @@ export default function Settings() {
         });
     }
     function handleUserInput(e: { target: { value: string } }) {
-        setUser(e.target.value);
+        setTempLogin(e.target.value);
         clearTimeout(timer);
         setTimer(setTimeout(() => {
-            getUserRepos(e.target.value)
+            getUserRepos(e.target.value);
         }, 500));
     }
 
     function handleSave() {
-        const data: IAppSettings = {
-            owner: user,
-            repo: repo,
-            blacklistedUsers: []
-        }
-        try {
-            localStorage.setItem(SETTINGS_KEY, JSON.stringify(data));
-            window.dispatchEvent(new Event('storage'));
-        } catch (err) {
-            if (err instanceof Error) {
-                console.log(err.message)
-                console.log('something went wrong during writing settings to localStorage');
-            }
-        }
+        dispatch(settingsActionCreator(tempLogin, tempRepo));
     }
 
-    
-    const settings = getAppSettings();
-    const [user, setUser] = useState<string>(settings.owner);
-    const [repo, setRepo] = useState<string>(settings.repo);
+    const login = useSelector((state: RootState) => state.settings.login);
+    const repo = useSelector((state: RootState) => state.settings.repo);
+    const [tempLogin, setTempLogin] = useState<string>(login);
+    const [tempRepo, setTempRepo] = useState<string>(repo);
+    const dispatch = useDispatch();
     const [repos, setRepos] = useState<string[]>([]);
     const [timer, setTimer] = useState<NodeJS.Timeout>();
 
     useEffect(() => {
-        getUserRepos(user);
+        getUserRepos(tempLogin);
     }, []);
 
     return (
@@ -55,14 +44,14 @@ export default function Settings() {
             <input
                 type="text"
                 placeholder="Логин"
-                value={user}
+                value={tempLogin}
                 onChange={handleUserInput}
             />
             <Autocomplete
                 placeholder="Репозиторий"
                 autocompleteList={repos}
-                initialValue={repo}
-                returnValueFunc={(input) => setRepo(input)}
+                initialValue={tempRepo}
+                returnValueFunc={(input) => setTempRepo(input)}
             />
             <button className="settings__save" onClick={handleSave}>Сохранить</button>
         </div>
